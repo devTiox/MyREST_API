@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-manufacturer
+      author: codex
+      changes:
+        - createTable:
+            tableName: manufacturer
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: VARCHAR(255)
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone
+                  type: VARCHAR(255)
+        - addUniqueConstraint:
+            tableName: manufacturer
+            columnNames: name
+            constraintName: uk_manufacturer_name
+        - addUniqueConstraint:
+            tableName: manufacturer
+            columnNames: email
+            constraintName: uk_manufacturer_email

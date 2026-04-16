@@ -1,35 +1,13 @@
 package apiproject.myrest_api.api.model;
 
-import jakarta.persistence.*;
+public class ManufacturerRequest {
 
-@Entity
-public class Manufacturer {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true)
     private String name;
     private String address;
-    @Column(unique = true)
     private String email;
     private String phone;
 
-    public Manufacturer(Long id, String name, String address, String email, String phone) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-        this.email = email;
-        this.phone = phone;
-    }
-
-    public Manufacturer() {
-
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public ManufacturerRequest() {
     }
 
     public String getName() {
@@ -63,9 +41,4 @@ public class Manufacturer {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-
-    public Long getId() {
-        return id;
-    }
-
 }

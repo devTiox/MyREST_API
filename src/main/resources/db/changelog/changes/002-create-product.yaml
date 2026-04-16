@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-product
+      author: codex
+      changes:
+        - createTable:
+            tableName: product
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: manufacturer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: DOUBLE PRECISION
+              - column:
+                  name: extra_fields
+                  type: JSONB
+        - addUniqueConstraint:
+            tableName: product
+            columnNames: name
+            constraintName: uk_product_name
+        - addForeignKeyConstraint:
+            baseTableName: product
+            baseColumnNames: manufacturer_id
+            referencedTableName: manufacturer
+            referencedColumnNames: id
+            constraintName: fk_product_manufacturer
+            onDelete: RESTRICT

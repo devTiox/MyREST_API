@@ -5,43 +5,31 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-// Mówi JPA, że ta klasa ma być mapowana na tabelę w bazie danych.
 @Entity
 public class Product {
-    // Oznacza pole jako klucz główny encji.
     @Id
-    // Każe bazie generować id automatycznie, zwykle jako auto-increment/identity.
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long manufacturerId;
+
+    @Column(unique = true)
     private String name;
-    private Integer price;
-    @ManyToOne
-    @JoinColumn(name = "manufacturer_id")
-    private Manufacturer manufacturer;
-    // Informuje Hibernate, że to pole ma być zapisane jako typ JSON.
+    private Double price;
+
     @JdbcTypeCode(SqlTypes.JSON)
-    // Wymusza kolumnę typu jsonb po stronie PostgreSQL.
     @Column(columnDefinition = "jsonb")
     private JsonNode extraFields;
 
-    public Manufacturer getManufacturer() {
-        return manufacturer;
+    public Product() {
     }
 
-    public void setManufacturer(Manufacturer manufacturer) {
-        this.manufacturer = manufacturer;
-    }
-
-    public Product(){
-
-    }
-
-    public Product(Long id, String name, Integer price, JsonNode extraFields) {
+    public Product(Long id, String name, Double price, Long manufacturerId, JsonNode extraFields) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.extraFields = extraFields;
+        this.manufacturerId = manufacturerId;
     }
 
     public void setId(Long id) {
@@ -60,11 +48,11 @@ public class Product {
         this.name = name;
     }
 
-    public Integer getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
@@ -74,5 +62,13 @@ public class Product {
 
     public void setExtraFields(JsonNode extraFields) {
         this.extraFields = extraFields;
+    }
+
+    public Long getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public void setManufacturerId(Long manufacturerId) {
+        this.manufacturerId = manufacturerId;
     }
 }

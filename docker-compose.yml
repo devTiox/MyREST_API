@@ -1,0 +1,15 @@
+services:
+    postgres:
+      image: postgres:16
+      container_name: myrestapi-postgres
+      environment:
+        POSTGRES_DB: myrestapi
+        POSTGRES_USER: myrestapi_user
+        POSTGRES_PASSWORD: task123
+      ports:
+        - "5432:5432"
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+
+volumes:
+    postgres_data:

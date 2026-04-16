@@ -1,6 +1,12 @@
 package apiproject.myrest_api.service;
 
+import apiproject.myrest_api.api.exception.ResourceNotFoundException;
 import apiproject.myrest_api.api.model.Manufacturer;
+import apiproject.myrest_api.api.model.ManufacturerRequest;
+import apiproject.myrest_api.api.model.Product;
+import apiproject.myrest_api.repository.ManufacturerRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,67 +14,115 @@ import java.util.Map;
 
 @Service
 public class ManufacturerService {
-    public ManufacturerService(){
+
+    private final ManufacturerRepository manufacturerRepository;
+
+    public ManufacturerService(ManufacturerRepository manufacturerRepository){
+        this.manufacturerRepository = manufacturerRepository;
     }
 
-    public Manufacturer getManufacturer(int id) {
-        //TODO: Get from db
-        return new Manufacturer();
+    public Manufacturer getManufacturer(Long id) {
+        return manufacturerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
     }
 
-    public Manufacturer createManufacturer(Manufacturer manufacturer) {
-        //TODO: Put to db
-
-        return manufacturer;
+    public Manufacturer getManufacturer(String name) {
+        return manufacturerRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
     }
 
-    public List<Manufacturer> createManufacturers(List<Manufacturer> manufacturers) {
-        for(Manufacturer manufacturer : manufacturers){
-            //TODO: Put all to db
+    public Manufacturer createManufacturer(ManufacturerRequest manufacturerRequest) {
+        Manufacturer manufacturerEntity = toManufacturer(manufacturerRequest);
+        return manufacturerRepository.save(manufacturerEntity);
+    }
+
+    public List<Manufacturer> createManufacturers(List<ManufacturerRequest> manufacturerRequests) {
+        List<Manufacturer> manufacturerEntities = manufacturerRequests.stream()
+                .map(this::toManufacturer)
+                .toList();
+        return manufacturerRepository.saveAll(manufacturerEntities);
+    }
+
+    public List<Manufacturer> getManufacturers(List<Long> ids) {
+        return manufacturerRepository.findAllById(ids);
+    }
+
+    public Manufacturer updateManufacturer(Long id, ManufacturerRequest manufacturerRequest) {
+        Manufacturer manufacturerEntity = manufacturerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
+
+        manufacturerEntity.setName(manufacturerRequest.getName());
+        manufacturerEntity.setAddress(manufacturerRequest.getAddress());
+        manufacturerEntity.setEmail(manufacturerRequest.getEmail());
+        manufacturerEntity.setPhone(manufacturerRequest.getPhone());
+
+        return manufacturerRepository.save(manufacturerEntity);
+    }
+
+    public Manufacturer updateManufacturer(String name, ManufacturerRequest manufacturerRequest) {
+        Manufacturer manufacturerEntity = manufacturerRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
+
+        manufacturerEntity.setName(manufacturerRequest.getName());
+        manufacturerEntity.setAddress(manufacturerRequest.getAddress());
+        manufacturerEntity.setEmail(manufacturerRequest.getEmail());
+        manufacturerEntity.setPhone(manufacturerRequest.getPhone());
+
+        return manufacturerRepository.save(manufacturerEntity);
+    }
+
+    public Manufacturer patchManufacturer(Long id, Map<String, Object> updates) {
+        Manufacturer manufacturerEntity = manufacturerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
+
+        return patchManufacturer(manufacturerEntity, updates);
+    }
+
+    public Manufacturer patchManufacturer(String name, Map<String, Object> updates) {
+        Manufacturer manufacturerEntity = manufacturerRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
+
+        return patchManufacturer(manufacturerEntity, updates);
+    }
+
+    private Manufacturer patchManufacturer(Manufacturer manufacturerEntity, Map<String, Object> updates) {
+
+        if (updates.containsKey("name")) {
+            manufacturerEntity.setName((String) updates.get("name"));
         }
-        return manufacturers;
-    }
-
-    public List<Manufacturer> getManufacturers(List<Integer> ids) {
-        //TODO: Get all from db
-        return List.of();
-    }
-
-    public Manufacturer updateManufacturer(int id, Manufacturer updatedManufacturer) {
-        Manufacturer manufacturer = null;
-        //TODO: get Manufacturer by id
-        if (manufacturer != null && manufacturer.getId() == id) {
-            manufacturer.setName(updatedManufacturer.getName());
-            manufacturer.setAddress(updatedManufacturer.getAddress());
-            manufacturer.setEmail(updatedManufacturer.getEmail());
-            manufacturer.setPhone(updatedManufacturer.getPhone());
-            return manufacturer;
+        if(updates.containsKey("address")) {
+            manufacturerEntity.setAddress((String) updates.get("address"));
         }
-        return new Manufacturer();
-    }
-
-    public Manufacturer patchManufacturer(int id, Map<String, Object> updates) {
-        Manufacturer manufacturer = null;
-        //TODO: get Manufacturer by id
-        if (manufacturer != null) {
-            if (updates.containsKey("name")) {
-                manufacturer.setName((String) updates.get("name"));
-            }
-            if(updates.containsKey("address")) {
-                manufacturer.setAddress((String) updates.get("address"));
-            }
-            if(updates.containsKey("email")){
-                manufacturer.setEmail((String) updates.get("email"));
-            }
-            if(updates.containsKey("phone")){
-                manufacturer.setPhone((String) updates.get("phone"));
-            }
+        if(updates.containsKey("email")){
+            manufacturerEntity.setEmail((String) updates.get("email"));
         }
-        return new Manufacturer();
+        if(updates.containsKey("phone")){
+            manufacturerEntity.setPhone((String) updates.get("phone"));
+        }
+
+        return manufacturerRepository.save(manufacturerEntity);
     }
 
-    public Manufacturer deleteManufacturer(int id) {
-        //TODO: delete from db
-        return new Manufacturer();
+    public Manufacturer deleteManufacturer(Long id) {
+        Manufacturer manufacturerEntity = manufacturerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
+        manufacturerRepository.deleteById(id);
+        return manufacturerEntity;
+    }
+
+    public Manufacturer deleteManufacturer(String name) {
+        Manufacturer manufacturerEntity = manufacturerRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Manufacturer not found"));
+        manufacturerRepository.deleteById(manufacturerEntity.getId());
+        return manufacturerEntity;
+    }
+
+    private Manufacturer toManufacturer(ManufacturerRequest manufacturerRequest) {
+        Manufacturer manufacturerEntity = new Manufacturer();
+        manufacturerEntity.setName(manufacturerRequest.getName());
+        manufacturerEntity.setAddress(manufacturerRequest.getAddress());
+        manufacturerEntity.setEmail(manufacturerRequest.getEmail());
+        manufacturerEntity.setPhone(manufacturerRequest.getPhone());
+        return manufacturerEntity;
     }
 }
